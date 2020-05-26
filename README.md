@@ -1,4 +1,4 @@
-1 - Unzip lfw-dataset
+1 - download dataset lfw-dataset https://www.kaggle.com/jessicali9530/lfw-dataset/download
 
 2 - install conda https://www.anaconda.com/products/individual
 
