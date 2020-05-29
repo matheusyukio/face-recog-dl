@@ -283,7 +283,7 @@ params = {
 def main():
     epoch = 500
     min_images_per_person = [30]  # [25,20]
-    models = ["DeepFace"]#["DeepFace",AlexNet","LeNet5"]
+    models = ["AlexNet"]#["DeepFace",AlexNet","LeNet5"]
     num_folds = 5
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
