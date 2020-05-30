@@ -24,7 +24,7 @@ from dataprocess import dataTrainAugmentation, dataHoldOutAugmentation, get_moun
 from models import create_new_model, DeepFace, LeNet5, AlexNet
 
 def get_model_name(name, k, batch):
-    return 'model_main1' + name + '_' + str(k) + '_' + str(batch) + '.h5'
+    return 'model_main3' + name + '_' + str(k) + '_' + str(batch) + '.h5'
 
 def get_current_time_str():
     return datetime.datetime.now().strftime("%Y%m%d_%H_%M_%S")
@@ -234,7 +234,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
 
         # LOAD BEST MODEL to evaluate the performance of the model model_"+MODEL_NAME+"_"+str(fold_var)+".h5"
         model.load_weights(
-            os.getcwd() + "/models/model_main1" + MODEL_NAME + "_" + str(fold_var) + '_' + str(BATCH_SIZE) + ".h5")
+            os.getcwd() + "/models/model_main3" + MODEL_NAME + "_" + str(fold_var) + '_' + str(BATCH_SIZE) + ".h5")
 
         results = model.evaluate(valid_data_generator)
         # results = model.evaluate_generator(valid_data_generator)
@@ -244,7 +244,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         VALIDATION_LOSS.append(results['loss'])
 
         write_results(
-            get_current_time_str() + 'main1_k_fold_' + str(CLASSES) + '_' + MODEL_NAME + '_' + str(EPOCHS) + '_' + str(
+            get_current_time_str() + 'main3_k_fold_' + str(CLASSES) + '_' + MODEL_NAME + '_' + str(EPOCHS) + '_' + str(
                 BATCH_SIZE) + '.txt', VALIDATION_ACCURACY, VALIDATION_LOSS, HISTORY)
         del history
         del model
