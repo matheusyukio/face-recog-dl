@@ -3,6 +3,7 @@
 
 # imports
 import os
+import gc
 import numpy as np
 # visualizazao
 import matplotlib.pyplot as plt
@@ -202,7 +203,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, fold_var, BATCH_SIZE),
                                                         monitor='val_acc', verbose=VERBOSE,
                                                         save_best_only=True, mode='max')
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=500)
+        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=200)
 
         callbacks_list = [checkpoint, earlystopping]
 
@@ -245,7 +246,10 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         write_results(
             get_current_time_str() + '_k_fold_' + str(CLASSES) + '_' + MODEL_NAME + '_' + str(EPOCHS) + '_' + str(
                 BATCH_SIZE) + '.txt', VALIDATION_ACCURACY, VALIDATION_LOSS, HISTORY)
-
+        del history
+        del model
+        tf.keras.backend.clear_session()
+        gc.collect()
         fold_var += 1
 
 
@@ -281,9 +285,9 @@ params = {
 """
 
 def main():
-    epoch = 500
+    epoch = 600
     min_images_per_person = [30]  # [25,20]
-    models = ["AlexNet"]#["DeepFace",AlexNet","LeNet5"]
+    models = ["AlexNet","DeepFace","LeNet5"]#["DeepFace",AlexNet","LeNet5"]
     num_folds = 5
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
