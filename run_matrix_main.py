@@ -109,7 +109,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, fold_var, BATCH_SIZE),
                                                         monitor='val_acc', verbose=VERBOSE,
                                                         save_best_only=True, mode='max')
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=200)
+        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=400)
 
         callbacks_list = [checkpoint, earlystopping]
 
@@ -177,13 +177,13 @@ params = {
 """
 
 def main():
-    epoch = 2
+    epoch = 600
     min_images_per_person = [30]  # [25,20]
-    models = ["LeNet5"]#["AlexNet","DeepFace","LeNet5"]#["DeepFace",AlexNet","LeNet5"]
+    models = ["AlexNet","DeepFace","LeNet5"]#["DeepFace",AlexNet","LeNet5"]
     num_folds = 5
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
-    batch_sizes = [2]  # [2,4,8]
+    batch_sizes = [30,2]  # [2,4,8]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:
