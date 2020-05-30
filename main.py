@@ -291,7 +291,7 @@ def main():
     num_folds = 2
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
-    batch_sizes = [30]  # [2,4,8]
+    batch_sizes = [10]  # [2,4,8]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:
