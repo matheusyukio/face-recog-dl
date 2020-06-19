@@ -58,23 +58,28 @@ def write_results(filename, acc, loss, history):
         file.write(str(HISTORY[hist].history))
         file.write('\n\n')
     file.close()
+    plot_train_test_loss(HISTORY[hist].history, filename)
 
-def plot_train_test_loss(history):
-    plt.plot(history.history['acc'])
-    plt.plot(history.history['val_acc'])
-    plt.title('model acc')
+def plot_train_test_loss(history, filename):
+    plt.plot(history['acc'])
+    plt.plot(history['val_acc'])
+    plt.title('modelo acc')
     plt.ylabel('acc')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'val'], loc='upper left')
-    plt.show()
+    plt.xlabel('epoca')
+    plt.legend(['treino', 'validacao'], loc='upper left')
+    #plt.show()
+    plt.savefig(filename + 'ACC.png')
+    plt.close()
 
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('model loss')
+    plt.plot(history['loss'])
+    plt.plot(history['val_loss'])
+    plt.title('modelo loss')
     plt.ylabel('loss')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'val'], loc='upper left')
-    plt.show()
+    plt.xlabel('epoca')
+    plt.legend(['treino', 'validacao'], loc='upper left')
+    #plt.show()
+    plt.savefig(filename + 'LOSS.png')
+    plt.close()
 
 def run_hold_out(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE=32):
     VALIDATION_ACCURACY = []
@@ -286,12 +291,12 @@ params = {
 
 def main():
     epoch = 600
-    min_images_per_person = [30]  # [25,20]
-    models = ["DeepFace","AlexNet","LeNet5"]
-    num_folds = 2
+    min_images_per_person = [30,25]  # [25,20]
+    models = ["DeepFace"]#["DeepFace","AlexNet","LeNet5"]
+    num_folds = 5
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
-    batch_sizes = [2,30]  # [2,4,8]
+    batch_sizes = [2,4,8,30]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:
