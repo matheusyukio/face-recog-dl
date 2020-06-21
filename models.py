@@ -7,6 +7,8 @@ from tensorflow.keras.layers import Flatten
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import AveragePooling2D, LocallyConnected2D
+#import tensorflow_addons as tfa
+
 
 def create_new_model(num_classes):
     model = Sequential()
@@ -62,4 +64,13 @@ def AlexNet(num_classes):
     model.add(Dense(1000, activation='relu'))
     model.add(Dropout(0.4))
     model.add(Dense(units=num_classes, activation='softmax'))
+    return model
+
+def FaceNet(num_classes):
+    model = Sequential()
+    model.add(Conv2D(32, (3, 3), input_shape = (250, 250, 3), activation = 'relu'))
+    model.add(MaxPooling2D(pool_size = (2, 2)))
+    model.add(Flatten())
+    model.add(Dense(units = 128, activation = 'relu'))
+    model.add(Dense(units = num_classes, activation = 'softmax'))
     return model

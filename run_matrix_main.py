@@ -67,7 +67,7 @@ def transform_image_dataframe_to_matrix(dataframe, new_width, new_height, from_c
     count = 0
     for image in dataframe.image_path:
         read = Image.open(os.path.join(os.getcwd(), from_current_to_images_path, image)).resize((new_width, new_height))
-        data = np.asarray(read)
+        data = np.asarray(read) / 255.0
         list_images[count] = data
         count += 1
 
@@ -109,7 +109,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, fold_var, BATCH_SIZE),
                                                         monitor='val_acc', verbose=VERBOSE,
                                                         save_best_only=True, mode='max')
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=400)
+        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=500)
 
         callbacks_list = [checkpoint, earlystopping]
 
@@ -177,13 +177,13 @@ params = {
 """
 
 def main():
-    epoch = 500
-    min_images_per_person = [30]  # [25,20]
-    models = ["LeNet5","DeepFace","AlexNet"]#["DeepFace",AlexNet","LeNet5"]
-    num_folds = 5
+    epoch = 2
+    min_images_per_person = [130]  # [25,20]
+    models = ["LeNet5"]#,"AlexNet","LeNet5"] #["LeNet5","DeepFace","AlexNet"]#["DeepFace",AlexNet","LeNet5"]
+    num_folds = 2
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
-    batch_sizes = [30,2]  # [2,4,8]
+    batch_sizes = [130]  # [2,4,8]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:
