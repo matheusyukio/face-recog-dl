@@ -177,13 +177,13 @@ params = {
 """
 
 def main():
-    epoch = 600
-    min_images_per_person = [30]  # [25,20]
-    models = ["DeepFace"]#,"AlexNet","LeNet5"] #["LeNet5","DeepFace","AlexNet"]#["DeepFace",AlexNet","LeNet5"]
-    num_folds = 5
+    epoch = 2
+    min_images_per_person = [130]  # [25,20]
+    models = ["LeNet5"]#,"AlexNet","LeNet5"] #["LeNet5","DeepFace","AlexNet"]#["DeepFace",AlexNet","LeNet5"]
+    num_folds = 2
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
-    batch_sizes = [2]  # [2,4,8]
+    batch_sizes = [130]  # [2,4,8]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:
