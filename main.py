@@ -21,7 +21,7 @@ import datetime
 
 from dataprocess import dataTrainAugmentation, dataHoldOutAugmentation, get_mounted_data
 
-from models import create_new_model, DeepFace, LeNet5, AlexNet
+from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace
 
 def get_model_name(name, k, batch):
     return 'model_main1' + name + '_' + str(k) + '_' + str(batch) + '.h5'
@@ -55,6 +55,7 @@ def write_results(filename, acc, loss, history):
         file.write(str(VALIDATION_LOSS[hist]))
         file.write('\n')
         file.write('HISTORY ' + str(hist) + ' \n')
+        file.write('EPOCHS ' + str(len(HISTORY[hist].history['loss'])) + ' \n')
         file.write(str(HISTORY[hist].history))
         file.write('\n\n')
     file.close()
@@ -273,6 +274,8 @@ def get_model(model_name, num_classes):
         return InceptionV3(num_classes)
     elif model_name == "DeepFace":
         return DeepFace(num_classes)
+    elif model_name == "VGGFace":
+        return VGGFace(num_classes)
 
 
 """
@@ -290,13 +293,13 @@ params = {
 """
 
 def main():
-    epoch = 600
-    min_images_per_person = [30,25]  # [25,20]
-    models = ["DeepFace"]#["DeepFace","AlexNet","LeNet5"]
+    epoch = 700
+    min_images_per_person = [30]#[30,25]  # [25,20]
+    models = ["LeNet5","AlexNet","DeepFace","VGGFace"]
     num_folds = 5
 
     #aumentando o batch para 30 DeepFace conseguiu bons resultados, testar com outras
-    batch_sizes = [2,4,8,30]
+    batch_sizes = [30,60]#[2,4,8,30]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:

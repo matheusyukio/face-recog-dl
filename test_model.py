@@ -1,7 +1,7 @@
-from models import FaceNet
+from models import VGGFace
 
 def test_model():
-	print(FaceNet(2).summary())
+	print(VGGFace(2).summary())
 
 if __name__ == '__main__':
 	test_model()
