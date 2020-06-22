@@ -234,7 +234,12 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
                             callbacks=callbacks_list,
                             validation_data=valid_data_generator,
                             validation_steps=valid_data_generator.n // valid_data_generator.batch_size,
-                            verbose=VERBOSE)
+                            verbose=VERBOSE,
+                            #GPU Test luisss
+                            max_queue_size=BATCH_SIZE,                # maximum size for the generator queue
+                            workers=8,                        # maximum number of processes to spin up when using process-based threading
+                            use_multiprocessing=True
+                            )
 
         HISTORY.append(history)
 
