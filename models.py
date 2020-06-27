@@ -31,6 +31,8 @@ def DeepFace(num_classes):
     model.add(Conv2D(16, (5, 5), activation='relu', name='L6'))
     model.add(Flatten(name='F0'))
     model.add(Dense(4096, activation='relu', name='F7'))
+    #taxa de dropout, ajustar aumentar e testar
+    # tirar imagem media
     model.add(Dropout(rate=0.5, name='D0'))
     model.add(Dense(num_classes, activation='softmax', name='F8'))
     return model
