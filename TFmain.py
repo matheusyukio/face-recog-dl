@@ -64,7 +64,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['acc'])
         # CREATE CALLBACKS
         checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, fold_var, BATCH_SIZE),monitor='val_acc', verbose=VERBOSE, save_best_only=True, mode='max')
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=400)
+        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=200)
         callbacks_list = [checkpoint, earlystopping]
 
         history = model.fit(ds_train,
@@ -134,12 +134,12 @@ params = {
 """
 
 def main():
-    epoch = 2
-    min_images_per_person = [130]#[30,25]  # [25,20]
-    models = ["LeNet5"]
-    num_folds = 2
+    epoch = 250
+    min_images_per_person = [30]#[30,25]  # [25,20]
+    models = ["LeNet5","AlexNet","DeepFace","VGGFace"]
+    num_folds = 5
 
-    batch_sizes = [130,100]#[2,4,8,30]
+    batch_sizes = [30,60]#[2,4,8,30]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:
