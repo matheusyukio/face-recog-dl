@@ -146,7 +146,7 @@ def main():
     #for min_per_person in min_images_per_person:
     min_per_person = min_images_per_person[0]
     multi_data = get_mounted_data(min_per_person, min_per_person)
-    data_x, data_y = transform_image_dataframe_to_matrix(multi_data, 190, 190, 'lfw-dataset/lfw-deepfunneled/lfw-deepfunneled/')
+    data_x, data_y = transform_image_dataframe_to_matrix(multi_data, 250, 250, 'lfw-dataset/lfw-deepfunneled/lfw-deepfunneled/')
 
     for batch in batch_sizes:
         for model in models:

@@ -1,3 +1,7 @@
+import numpy as np
+# visualizazao
+import matplotlib.pyplot as plt
+
 def write_results(filename, acc, loss, history):
     VALIDATION_ACCURACY = acc
     VALIDATION_LOSS = loss
