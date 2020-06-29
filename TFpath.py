@@ -28,7 +28,7 @@ def transform_image_to_tfrecord_image_path(image_path, BATCH_SIZE):
         img = tf.image.convert_image_dtype(img, tf.float32)
         # resize the image to the desired size.
         # normalize
-        return tf.image.resize(img / 255., [IMG_HEIGHT, IMG_WIDTH])
+        return tf.image.resize(img, [IMG_HEIGHT, IMG_WIDTH])
 
     def process_path(file_path):
         label = get_label(file_path)
