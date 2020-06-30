@@ -101,6 +101,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         del model
         tf.keras.backend.clear_session()
         gc.collect()
+        tf.compat.v1.reset_default_graph()
         fold_var += 1
 
 def get_model(model_name, num_classes):
@@ -136,7 +137,7 @@ params = {
 def main():
     epoch = 250
     min_images_per_person = [30]#[30,25]  # [25,20]
-    models = ["LeNet5","AlexNet","DeepFace","VGGFace"]
+    models = ["DeepFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
     num_folds = 5
 
     batch_sizes = [30,60]#[2,4,8,30]
