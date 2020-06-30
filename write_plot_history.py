@@ -37,7 +37,7 @@ def write_results(filename, acc, loss, history):
 def plot_train_test_loss(history, filename):
     plt.plot(history['acc'])
     plt.plot(history['val_acc'])
-    plt.title('modelo acc')
+    plt.title(filename + ' modelo acc')
     plt.ylabel('acc')
     plt.xlabel('epoca')
     plt.legend(['treino', 'validacao'], loc='upper left')
@@ -47,7 +47,7 @@ def plot_train_test_loss(history, filename):
 
     plt.plot(history['loss'])
     plt.plot(history['val_loss'])
-    plt.title('modelo loss')
+    plt.title(filename +  ' modelo loss')
     plt.ylabel('loss')
     plt.xlabel('epoca')
     plt.legend(['treino', 'validacao'], loc='upper left')
