@@ -19,7 +19,7 @@ import datetime
 
 from dataprocess import get_mounted_data, directory_mover
 from TFpath import transform_image_to_tfrecord_image_path
-from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace
+from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace, VGGFaceHalf
 
 from write_plot_history import write_results
 
@@ -121,6 +121,8 @@ def get_model(model_name, num_classes):
         return DeepFace(num_classes)
     elif model_name == "VGGFace":
         return VGGFace(num_classes)
+    elif model_name == "VGGFaceHalf":
+        return VGGFace(num_classes)
 
 """
 params = {
@@ -137,7 +139,7 @@ params = {
 def main():
     epoch = 250
     min_images_per_person = [30]#[30,25]  # [25,20]
-    models = ["DeepFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
+    models = ["VGGFaceHalf"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
     num_folds = 5
 
     batch_sizes = [30,60]#[2,4,8,30]
