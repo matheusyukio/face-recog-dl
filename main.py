@@ -23,64 +23,13 @@ from dataprocess import dataTrainAugmentation, dataHoldOutAugmentation, get_moun
 
 from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace
 
+from write_plot_history import write_results
+
 def get_model_name(name, k, batch):
     return 'model_main1' + name + '_' + str(k) + '_' + str(batch) + '.h5'
 
 def get_current_time_str():
     return datetime.datetime.now().strftime("%Y%m%d_%H_%M_%S")
-
-def write_results(filename, acc, loss, history):
-    VALIDATION_ACCURACY = acc
-    VALIDATION_LOSS = loss
-    HISTORY = history
-    file = open(filename, 'a+')
-    file.write('VALIDATION_ACCURACY \n')
-    file.write(str(VALIDATION_ACCURACY))
-    file.write('\n')
-    file.write('VALIDATION_ACCURACY mean\n')
-    file.write(str(np.mean(VALIDATION_ACCURACY)))
-    file.write('\n')
-    file.write('VALIDATION_ACCURACY std\n')
-    file.write(str(np.std(VALIDATION_ACCURACY)))
-    file.write('\n')
-    file.write('\n')
-    file.write('VALIDATION_LOSS \n')
-    file.write(str(VALIDATION_LOSS))
-    file.write('\n\n')
-    for hist in range(len(HISTORY)):
-        file.write('VALIDATION_ACCURACY HISTORY ' + str(hist) + '\n')
-        file.write(str(VALIDATION_ACCURACY[hist]))
-        file.write('\n')
-        file.write('VALIDATION_LOSS HISTORY ' + str(hist) + '\n')
-        file.write(str(VALIDATION_LOSS[hist]))
-        file.write('\n')
-        file.write('HISTORY ' + str(hist) + ' \n')
-        file.write('EPOCHS ' + str(len(HISTORY[hist].history['loss'])) + ' \n')
-        file.write(str(HISTORY[hist].history))
-        file.write('\n\n')
-    file.close()
-    plot_train_test_loss(HISTORY[hist].history, filename)
-
-def plot_train_test_loss(history, filename):
-    plt.plot(history['acc'])
-    plt.plot(history['val_acc'])
-    plt.title('modelo acc')
-    plt.ylabel('acc')
-    plt.xlabel('epoca')
-    plt.legend(['treino', 'validacao'], loc='upper left')
-    #plt.show()
-    plt.savefig(filename + 'ACC.png')
-    plt.close()
-
-    plt.plot(history['loss'])
-    plt.plot(history['val_loss'])
-    plt.title('modelo loss')
-    plt.ylabel('loss')
-    plt.xlabel('epoca')
-    plt.legend(['treino', 'validacao'], loc='upper left')
-    #plt.show()
-    plt.savefig(filename + 'LOSS.png')
-    plt.close()
 
 def run_hold_out(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE=32):
     VALIDATION_ACCURACY = []
@@ -234,11 +183,11 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
                             callbacks=callbacks_list,
                             validation_data=valid_data_generator,
                             validation_steps=valid_data_generator.n // valid_data_generator.batch_size,
-                            verbose=VERBOSE,
+                            verbose=VERBOSE
                             #GPU Test luisss
                             max_queue_size=BATCH_SIZE,                # maximum size for the generator queue
-                            workers=8,                        # maximum number of processes to spin up when using process-based threading
-                            use_multiprocessing=True
+                            workers=12,                        # maximum number of processes to spin up when using process-based threading
+                            use_multiprocessing=False
                             )
 
         HISTORY.append(history)
