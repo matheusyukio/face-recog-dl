@@ -39,7 +39,7 @@ def transform_image_to_tfrecord_image_path(image_path, BATCH_SIZE):
 
     labeled_ds = list_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 
-    def prepare_for_training(ds, cache=True, shuffle_buffer_size=1000):
+    def prepare_for_training(ds, cache=True, shuffle_buffer_size=500):
         # This is a small dataset, only load it once, and keep it in memory.
         # use `.cache(filename)` to cache preprocessing work for datasets that don't
         # fit in memory.
