@@ -1,8 +1,11 @@
 import numpy as np
 # visualizazao
 import matplotlib.pyplot as plt
+#import statistics as stat
+import numpy as np 
 
 def write_results(filename, acc, loss, history):
+    max_acc_val = []
     VALIDATION_ACCURACY = acc
     VALIDATION_LOSS = loss
     HISTORY = history
@@ -23,6 +26,15 @@ def write_results(filename, acc, loss, history):
     for hist in range(len(HISTORY)):
         file.write('VALIDATION_ACCURACY HISTORY ' + str(hist) + '\n')
         file.write(str(VALIDATION_ACCURACY[hist]))
+        file.write('\n')
+        file.write('MAX ACC ' + str(max(HISTORY[hist].history['val_acc'])) + ' \n')
+        max_acc_val.append(max(HISTORY[hist].history['val_acc']))
+        file.write('ACC MAX VALIDATION ARRAY ' + str(max_acc_val) + '\n')
+        file.write('ACC MEAN VALIDATION ')
+        file.write(str(np.mean(max_acc_val)))
+        file.write('\n')
+        if len(max_acc_val) > 1:
+            file.write('ACC STD VALIDATION ' + str(np.std(max_acc_val)) + '\n')
         file.write('\n')
         file.write('VALIDATION_LOSS HISTORY ' + str(hist) + '\n')
         file.write(str(VALIDATION_LOSS[hist]))
