@@ -139,7 +139,7 @@ params = {
 def main():
     epoch = 250
     min_images_per_person = [30]#[30,25]  # [25,20]
-    models = ["AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
+    models = ["LeNet5","VGGFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
     num_folds = 5
 
     batch_sizes = [30,60]#[2,4,8,30]
