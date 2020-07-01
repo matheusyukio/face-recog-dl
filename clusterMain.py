@@ -10,16 +10,17 @@ from datetime import datetime
 # CNN
 import tensorflow as tf
 
-from tensorflow.keras import optimizers
+import keras
+from keras import optimizers
 
-from tensorflow.keras.applications import VGG16, ResNet50, InceptionV3
+from keras.applications import VGG16, ResNet50, InceptionV3
 
 from sklearn.model_selection import StratifiedKFold
 import datetime
 
-from dataprocess import get_mounted_data, directory_mover
+from dataprocess import get_mounted_data, directory_mover, dataTrainAugmentation
 from TFpath import transform_image_to_tfrecord_image_path
-from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace, VGGFaceHalf
+from modelsCluster import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace, VGGFaceHalf
 
 from write_plot_history import write_results
 
@@ -53,31 +54,61 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
 
         directory_mover(training_data,"training_data_"+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str(fold_var))
         directory_mover(validation_data,"validation_data_"+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str(fold_var))
+        train_data_generator = dataTrainAugmentation().flow_from_dataframe(
+            dataframe=training_data,
+            directory=os.path.join(os.getcwd(), 'lfw-dataset/lfw-deepfunneled/lfw-deepfunneled/'),
+            target_size=(250, 250),
+            x_col="image_path", y_col="name",
+            batch_size=BATCH_SIZE,
+            class_mode="categorical",
+            shuffle=True)
+
+        valid_data_generator = dataTrainAugmentation().flow_from_dataframe(
+            dataframe=validation_data,
+            directory=os.path.join(os.getcwd(), 'lfw-dataset/lfw-deepfunneled/lfw-deepfunneled/'),
+            target_size=(250, 250),
+            x_col="image_path", y_col="name",
+            batch_size=BATCH_SIZE,
+            class_mode="categorical",
+            shuffle=True)
 
         # tfrecord
-        ds_train = transform_image_to_tfrecord_image_path(os.path.join(os.getcwd(),"new/working/","training_data_"+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str(fold_var)), BATCH_SIZE)
-        ds_validation = transform_image_to_tfrecord_image_path(os.path.join(os.getcwd(),"new/working/","validation_data_"+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str(fold_var)), BATCH_SIZE)
+        #ds_train = transform_image_to_tfrecord_image_path(os.path.join(os.getcwd(),"new/working/","training_data_"+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str(fold_var)), BATCH_SIZE)
+        #ds_validation = transform_image_to_tfrecord_image_path(os.path.join(os.getcwd(),"new/working/","validation_data_"+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str(fold_var)), BATCH_SIZE)
 
         model = get_model(MODEL, CLASSES)
         # rmsprop = RMSprop(lr=1e-3, decay=1e-6)
         sgd = optimizers.SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
         model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['acc'])
         # CREATE CALLBACKS
-        checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, fold_var, BATCH_SIZE),monitor='val_acc', verbose=VERBOSE, save_best_only=True, mode='max')
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=200)
+        checkpoint = keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, fold_var, BATCH_SIZE),monitor='val_acc', verbose=VERBOSE, save_best_only=True, mode='max')
+        earlystopping = keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=200)
         callbacks_list = [checkpoint, earlystopping]
-
+        '''
         history = model.fit(ds_train,
                             epochs=EPOCHS,
                             steps_per_epoch=(training_data.shape[0] // BATCH_SIZE) + 1,
                             callbacks=callbacks_list,
                             validation_data=ds_validation,
                             validation_steps=(validation_data.shape[0] // BATCH_SIZE) + 1,
-                            verbose=VERBOSE,
+                            verbose=VERBOSE
                             #GPU Test luisss
-                            max_queue_size=BATCH_SIZE,                # maximum size for the generator queue
-                            workers=12,                        # maximum number of processes to spin up when using process-based threading
-                            use_multiprocessing=False
+                            #max_queue_size=BATCH_SIZE,                # maximum size for the generator queue
+                            #workers=12,                        # maximum number of processes to spin up when using process-based threading
+                            #use_multiprocessing=False
+                            )
+        '''
+        history = model.fit(train_data_generator,
+                            epochs=EPOCHS,
+                            steps_per_epoch=train_data_generator.n // train_data_generator.batch_size,
+                            callbacks=callbacks_list,
+                            validation_data=valid_data_generator,
+                            validation_steps=valid_data_generator.n // valid_data_generator.batch_size,
+                            verbose=VERBOSE
+                            #GPU Test luisss
+                            #max_queue_size=BATCH_SIZE,                # maximum size for the generator queue
+                            #workers=12,                        # maximum number of processes to spin up when using process-based threading
+                            #use_multiprocessing=False
                             )
 
         HISTORY.append(history)
@@ -99,9 +130,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
 
         del history
         del model
-        tf.keras.backend.clear_session()
         gc.collect()
-        tf.compat.v1.reset_default_graph()
         fold_var += 1
 
 def get_model(model_name, num_classes):
@@ -137,9 +166,9 @@ params = {
 """
 
 def main():
-    epoch = 250
+    epoch = 300
     min_images_per_person = [30]#[30,25]  # [25,20]
-    models = ["LeNet5","VGGFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
+    models = ["AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
     num_folds = 5
 
     batch_sizes = [30,60]#[2,4,8,30]
@@ -153,7 +182,6 @@ def main():
                 print("### run_k_fold ", " epoch ", epoch, " min_per_person ", min_per_person, " CLASSES ", CLASSES,
                       "model ", model, " batch_size ", batch)
                 run_k_fold(multi_data, X, Y, CLASSES, epoch, model, batch, num_folds)
-                tf.keras.backend.clear_session()
                 gc.collect()
 
 if __name__ == "__main__":

@@ -59,9 +59,9 @@ def directory_mover(data, dir_name):
 def dataTrainAugmentation():
     return tf.keras.preprocessing.image.ImageDataGenerator(
         rescale=1. / 255,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True
+        #shear_range=0.2,
+        #zoom_range=0.2,
+        #horizontal_flip=True
     )
 
 def dataHoldOutAugmentation():
