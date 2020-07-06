@@ -109,6 +109,8 @@ def VGGFace(num_classes):
     model.add(Dropout(0.5))
     model.add(Conv2D(2622, (1, 1)))
     model.add(Flatten())
+    #2)PEGAR O MAPA DE ATIVACAO GERADO -> VETOR  DO MELHOR PARAMETRO DURANTE O TREINAMENTO
+    #VERIFICAR SE FEATURES EXTRAÍDAS ESTAO BOAS
     #model.add(Activation('softmax'))
     model.add(Dense(units=num_classes, activation='softmax'))
     return model
