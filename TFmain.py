@@ -101,7 +101,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         del model
         #tf.keras.backend.clear_session()
         gc.collect()
-        tf.compat.v1.reset_default_graph()
+        #tf.compat.v1.reset_default_graph()
         fold_var += 1
 
 def get_model(model_name, num_classes):
