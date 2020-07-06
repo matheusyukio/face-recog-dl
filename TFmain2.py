@@ -64,7 +64,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
         model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['acc'])
         # CREATE CALLBACKS
         checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, fold_var, BATCH_SIZE),monitor='val_acc', verbose=VERBOSE, save_best_only=True, mode='max')
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=200)
+        earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=300)
         callbacks_list = [checkpoint, earlystopping]
 
         history = model.fit(ds_train,
@@ -99,9 +99,9 @@ def run_k_fold(multi_data, X, Y, CLASSES, epoch, MODEL, BATCH_SIZE, num_folds):
 
         del history
         del model
-        tf.keras.backend.clear_session()
+        #tf.keras.backend.clear_session()
         gc.collect()
-        tf.compat.v1.reset_default_graph()
+        #tf.compat.v1.reset_default_graph()
         fold_var += 1
 
 def get_model(model_name, num_classes):
@@ -137,9 +137,9 @@ params = {
 """
 
 def main():
-    epoch = 250
+    epoch = 400
     min_images_per_person = [30]#[30,25]  # [25,20]
-    models = ["LeNet5","VGGFaceHalf"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
+    models = ["LeNet5","VGGFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
     num_folds = 5
 
     batch_sizes = [30,60]#[2,4,8,30]
@@ -153,7 +153,7 @@ def main():
                 print("### run_k_fold ", " epoch ", epoch, " min_per_person ", min_per_person, " CLASSES ", CLASSES,
                       "model ", model, " batch_size ", batch)
                 run_k_fold(multi_data, X, Y, CLASSES, epoch, model, batch, num_folds)
-                tf.keras.backend.clear_session()
+                #tf.keras.backend.clear_session()
                 gc.collect()
 
 if __name__ == "__main__":
