@@ -9,3 +9,4 @@ new/*
 .ipynb_checkpoints/
 Datapipeline.ipynb
 *.png
+logs/
