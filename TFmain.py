@@ -142,7 +142,7 @@ def main():
     models = ["AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace"]#["LeNet5","AlexNet","DeepFace","VGGFace"]
     num_folds = 5
 
-    batch_sizes = [30,60]#[2,4,8,30]
+    batch_sizes = [2,4,8]#[2,4,8,30]
     for min_per_person in min_images_per_person:
         for batch in batch_sizes:
             for model in models:
