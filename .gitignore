@@ -10,3 +10,6 @@ new/*
 Datapipeline.ipynb
 *.png
 logs/
+*.h5
+
+out.txt
