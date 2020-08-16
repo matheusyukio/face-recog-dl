@@ -31,6 +31,8 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 import pathlib
 import IPython.display as display
 from PIL import Image
+#import statistics
+from scipy.stats import mode
 
 global CLASS_NAMES_GLOBAL
 CLASS_NAMES_GLOBAL = []
@@ -166,7 +168,10 @@ def run_k_fold(multi_data, X, Y, CLASSES, MODEL, BATCH_SIZE, num_folds):
         predict = model.predict(ds_validation)
         print('predict 1')
         print(predict)
-        #print(np.argmax(predict, axis=-1))
+        print(predict.shape)
+
+        print(np.argmax(predict, axis=-1))
+        classes1 = np.argmax(predict, axis=-1)
         print('results 1')
         print(results)
         results = dict(zip(model.metrics_names, results))
@@ -175,22 +180,51 @@ def run_k_fold(multi_data, X, Y, CLASSES, MODEL, BATCH_SIZE, num_folds):
         model2.load_weights("model_TFrecordDeepFace_2_60.h5")
         predict2 = model2.predict(ds_validation)
         print('predict 2')
-        print(predict2)
-        #print(np.argmax(predict2, axis=-1))
+        print(predict2[:3])
+        print(predict2.shape)
+        print(np.argmax(predict2, axis=-1))
+        classes2 = np.argmax(predict2, axis=-1)
         results2 = model2.evaluate(ds_validation)
         print('results 2')
         print(results2)
+
 
         model3 = model
         model3.load_weights("model_TFrecordDeepFace_3_60.h5")
         predict3 = model3.predict(ds_validation)
         print('predict 3')
         print(predict3)
-        #print(np.argmax(predict3, axis=-1))  
+        print(np.argmax(predict3, axis=-1))  
+        classes3 = np.argmax(predict3, axis=-1)
         results3 = model3.evaluate(ds_validation)
         print('results 3')
         print(results3)
 
+        print("MAX ====================")
+        # final_max = np.array([])
+        # for i in range(0,validation_data.shape[0]):
+        #     predict[i]
+        #     final_max = np.append(final_max, max([predict[i], predict2[i]]))
+        # print(final_max)
+
+        final_pred = np.array([])
+        #final_pred = []
+        for i in range(0,validation_data.shape[0]):
+            print(classes1[i])
+            print(classes2[i])
+            print(classes3[i])
+            print(mode([classes1[i], classes2[i], classes3[i]]))
+            final_pred = np.append(final_pred, mode([classes1[i], classes2[i], classes3[i]]))
+            #final_pred.append(statistics.mode([predict[i], predict2[i], predict3[i]]))
+
+        print(final_pred)
+        print(np.argmax(final_pred, axis=-1))
+
+        print("MEAN ====================")
+        final_mean = (predict + predict2 + predict3)/3
+        print(final_mean.shape)
+        print(final_mean)
+        print(np.argmax(final_mean, axis=-1))  
 
 
         """

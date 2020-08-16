@@ -27,11 +27,15 @@ from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace
 
 from write_plot_history import write_results
 
+from write_cm_report import write_cm_report
+from plot_cm import plot_confusion_matrix
+
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 import pathlib
 import IPython.display as display
 from PIL import Image
 import pandas as pd
+from scipy.stats import mode
 
 global CLASS_NAMES_GLOBAL
 CLASS_NAMES_GLOBAL = []
@@ -177,7 +181,8 @@ def run_k_fold(multi_data, X, Y, CLASSES, MODEL, BATCH_SIZE, num_folds):
         predict = model.predict_generator(valid_data_generator)
         print('predict 1')
         print(predict)
-        #print(np.argmax(predict, axis=-1))
+        print(np.argmax(predict, axis=-1))
+        classes1 = np.argmax(predict, axis=-1)
         print('results 1')
         print(results)
         results = dict(zip(model.metrics_names, results))
@@ -186,31 +191,23 @@ def run_k_fold(multi_data, X, Y, CLASSES, MODEL, BATCH_SIZE, num_folds):
         print(y_pred)
         print(valid_data_generator.classes)
 
-        print('Confusion Matrix')
-        cm = confusion_matrix(valid_data_generator.classes, y_pred)
-        print(cm)
-
-        score = f1_score(valid_data_generator.classes, y_pred, average='macro')
-        precision = precision_score(valid_data_generator.classes, y_pred, average='macro')
-        recall = recall_score(valid_data_generator.classes, y_pred, average='macro')
-        print('f1 score: {:.3f}, precision: {:.3f}, recall: {:.3f}'.format(score, precision, recall))
-        print(dir(valid_data_generator))
-        print(Y.groupby('name').nunique())
-        print(" ")
-        print(valid_data_generator.filenames)
         nomes_classes = []
         for i in pd.DataFrame(Y.groupby('name')['name'].nunique().reset_index(name="unique"))[
-            'name']:  # Y.groupby('name').nunique()['name']:
+        'name']:
             nomes_classes.append(str(i))
-        print(classification_report(valid_data_generator.classes, y_pred, target_names=nomes_classes))
 
-        '''
+        write_cm_report(Y, valid_data_generator.classes, y_pred, 'model1_'+get_current_time_str() + 'main1_k_fold_' + str(CLASSES) + '_' + MODEL_NAME + '_' + str(EPOCHS) + '_' + str(
+                BATCH_SIZE)+'.txt')
+        cm = confusion_matrix(valid_data_generator.classes, y_pred)
+        plot_confusion_matrix(cm, classes=nomes_classes, CLASSES=CLASSES, MODEL_NAME=MODEL_NAME, EPOCHS=EPOCHS, BATCH_SIZE=BATCH_SIZE, title='Matriz de Confusão')
+
         model2 = model
         model2.load_weights("model_TFrecordDeepFace_2_60.h5")
         predict2 = model2.predict(valid_data_generator)
         print('predict 2')
         print(predict2)
-        #print(np.argmax(predict2, axis=-1))
+        print(np.argmax(predict2, axis=-1))
+        classes2 = np.argmax(predict2, axis=-1)
         results2 = model2.evaluate(valid_data_generator)
         print('results 2')
         print(results2)
@@ -220,13 +217,57 @@ def run_k_fold(multi_data, X, Y, CLASSES, MODEL, BATCH_SIZE, num_folds):
         predict3 = model3.predict(valid_data_generator)
         print('predict 3')
         print(predict3)
-        #print(np.argmax(predict3, axis=-1))  
+        print(np.argmax(predict3, axis=-1))  
+        classes3 = np.argmax(predict3, axis=-1)
         results3 = model3.evaluate(valid_data_generator)
         print('results 3')
         print(results3)
+
+        print("MEAN ====================")
+        final_mean = (predict + predict2 + predict3)/3
+        print(final_mean.shape)
+        print(final_mean)
+        print(np.argmax(final_mean, axis=-1))
+        pred_ensemble_media = np.argmax(final_mean, axis=-1)
+
+        write_cm_report(Y, valid_data_generator.classes, pred_ensemble_media, 'ensemble_media_'+get_current_time_str() + 'main1_k_fold_' + str(CLASSES) + '_' + MODEL_NAME + '_' + str(EPOCHS) + '_' + str(
+                BATCH_SIZE)+'.txt')
+        cm2 = confusion_matrix(valid_data_generator.classes, pred_ensemble_media)
+        plot_confusion_matrix(cm2, classes=nomes_classes, CLASSES=CLASSES, MODEL_NAME=MODEL_NAME, EPOCHS=EPOCHS, BATCH_SIZE=BATCH_SIZE, title='Matriz de Confusão')
+
+        print("Voto marjoritario ====================")
+        '''
+        final_max = np.array([])
+        for i in range(0,validation_data.shape[0]):
+             predict[i]
+             final_max = np.append(final_max, np.maximum(predict[i], predict2[i],predict3[i]))
+        print(final_max)
+        print(np.argmax(final_max, axis=-1))
         '''
 
+        final_pred_mode = np.array([])
+        #final_pred_mode = []
+        print(validation_data.shape[0])
+        for i in range(0,validation_data.shape[0]):
+            print(classes1[i])
+            print(classes2[i])
+            print(classes3[i])
+            print(mode([classes1[i], classes2[i], classes3[i]]))
+            final_pred_mode = np.append(final_pred_mode, mode([classes1[i], classes2[i], classes3[i]])[0][0])
+            #final_pred_mode.append(statistics.mode([predict[i], predict2[i], predict3[i]]))
+        print('final_pred_mode')
+        print(len(final_pred_mode))        
+        print(final_pred_mode)
+        print(final_pred_mode.astype(int))
+        print(type(final_pred_mode[0]))
+        print(final_pred_mode[0])
+        print(np.argmax(final_pred_mode, axis=-1))
+        pred_ensemble_mode = np.argmax(final_pred_mode, axis=-1)
 
+        write_cm_report(Y, valid_data_generator.classes, final_pred_mode.astype(int), 'ensemble_marjoritario_'+get_current_time_str() + 'main1_k_fold_' + str(CLASSES) + '_' + MODEL_NAME + '_' + str(EPOCHS) + '_' + str(
+                BATCH_SIZE)+'.txt')
+        cm3 = confusion_matrix(valid_data_generator.classes, final_pred_mode.astype(int))
+        plot_confusion_matrix(cm3, classes=nomes_classes, CLASSES=CLASSES, MODEL_NAME=MODEL_NAME, EPOCHS=EPOCHS, BATCH_SIZE=BATCH_SIZE, title='Matriz de Confusão')
         """
         [0.1 0.2 0.7] modelo1
         [0.3333 0.333 0.333300001] modelo2
@@ -300,43 +341,7 @@ def run_k_fold(multi_data, X, Y, CLASSES, MODEL, BATCH_SIZE, num_folds):
         #VALIDATION_LOSS.append(2)
         print(classification_report(valid_data_generator.classes, cm_predictions, target_names=valid_data_generator.labels))
         '''
-        def plot_confusion_matrix(cm, classes,
-                                  normalize=False,
-                                  title='Confusion matrix',
-                                  cmap=plt.cm.Blues):
-            
-            #This function prints and plots the confusion matrix.
-            #Normalization can be applied by setting `normalize=True`.
-            
-            if normalize:
-                cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-                print("Normalized confusion matrix")
-            else:
-                print('Confusion matrix, without normalization')
-
-            plt.figure(figsize=(CLASSES+10, CLASSES+10))
-            plt.imshow(cm, interpolation='nearest', cmap=cmap)
-            plt.title(title)
-            #plt.colorbar()
-            tick_marks = np.arange(len(classes))
-            plt.xticks(tick_marks, classes, rotation=45)
-            plt.yticks(tick_marks, classes)
-
-            fmt = '.2f' if normalize else 'd'
-            thresh = cm.max() / 2.
-            for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-                plt.text(j, i, format(cm[i, j], fmt),
-                         horizontalalignment="center",
-                         color="white" if cm[i, j] > thresh else "black")
-
-            plt.tight_layout()
-            plt.ylabel('Classe Real')
-            plt.xlabel('Classe Predita')
-            plt.savefig(get_current_time_str() + 'main1_k_fold_' + str(CLASSES) + '_' + MODEL_NAME + '_' + str(EPOCHS) + '_' + str(
-                BATCH_SIZE) + 'CM.png')
-            plt.close()
-
-        plot_confusion_matrix(cm, classes=nomes_classes, title='Matriz de Confusão')
+        ###plot_confusion_matrix(cm, classes=nomes_classes, title='Matriz de Confusão')
         '''
         '''
         '''
