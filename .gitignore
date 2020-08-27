@@ -11,5 +11,7 @@ Datapipeline.ipynb
 *.png
 logs/
 *.h5
+images/*
+new_calfw/*
 
 out.txt
