@@ -8,6 +8,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import AveragePooling2D, LocallyConnected2D
 from tensorflow.keras.layers import ZeroPadding2D
+from tensorflow.keras.applications import VGG16, ResNet50, InceptionV3
 
 #import tensorflow_addons as tfa
 
@@ -156,4 +157,19 @@ def VGGFaceHalf(num_classes):
     model.add(Flatten())
     #model.add(Activation('softmax'))
     model.add(Dense(units=num_classes, activation='softmax'))
+    return model
+
+def ResNet_50(num_classes):
+    base_model = ResNet50(input_shape=(250, 250, 3),
+                                               include_top=False,
+                                               weights=None
+                                               #weights='imagenet'
+                                               )    
+    
+    flat1 = Flatten()
+
+    predictions = Dense(num_classes, activation='softmax')
+
+    model = Sequential([base_model, flat1, predictions])
+        
     return model

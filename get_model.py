@@ -1,4 +1,4 @@
-from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace, VGGFaceHalf
+from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace, VGGFaceHalf, ResNet_50
 from inception import Inception
 
 def get_model(model_name, num_classes):
@@ -22,3 +22,5 @@ def get_model(model_name, num_classes):
         return VGGFace(num_classes)
     elif model_name == "Inception":
         return Inception(num_classes)
+    elif model_name == "ResNet_50":
+    	return ResNet_50(num_classes)
