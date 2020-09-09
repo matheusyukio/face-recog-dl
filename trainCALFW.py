@@ -26,6 +26,7 @@ from dataprocess import get_mounted_data, directory_mover, dataTrainAugmentation
 from CALFWdataprocess import calfw_mount_data, calfw_directory_mover
 #from TFpathUnbatch import transform_image_to_tfrecord_image_path
 from models import create_new_model, DeepFace, LeNet5, AlexNet, VGGFace
+from inception import Inception
 
 from write_plot_history import write_results
 
@@ -131,6 +132,8 @@ def get_model(model_name, num_classes):
         return DeepFace(num_classes)
     elif model_name == "VGGFace":
         return VGGFace(num_classes)
+    elif model_name == "Inception":
+        return Inception(num_classes)
 
 def get_model_name(name, k, batch):
     return 'model_TFrecord' + name + '_' + str(k) + '_' + str(batch) + '.h5'
@@ -150,25 +153,56 @@ def run_k_fold(multi_data, X, Y, CLASSES, MODEL, BATCH_SIZE, num_folds, nomes_cl
 
     #calfw_directory_mover(multi_data,"validation_data_"+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str('fold_var'))
 
+    train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+            #rescale=1. / 255,
+            #shear_range=0.2,
+            #zoom_range=0.2,
+            #horizontal_flip=True
+            validation_split=0.5
+        )
+    print(train_datagen)
+    train_generator = train_datagen.flow_from_directory(
+        directory=os.path.join(os.getcwd(), 'new_calfw/working/validation_data_DeepFace60_0_fold_var'),
+        target_size=(250, 250),
+        batch_size=60,
+        class_mode='binary',
+        subset='training') # set as training data
+    print(train_generator)
 
-    valid_data_generator = dataTrainAugmentation().flow_from_directory(
-            # training_data,
-            directory=os.path.join(os.getcwd(), 'new_calfw/working/validation_data_'+MODEL_NAME+str(BATCH_SIZE)+'_'+str(EPOCHS)+'_'+str('fold_var')+'/'),
-            target_size=(250, 250),
-            # x_col = "image_path", y_col = "name",
-            batch_size=1,
-            class_mode="categorical",
-            #subset="validation",
-            shuffle=False)
+
+    validation_generator = train_datagen.flow_from_directory(
+        directory=os.path.join(os.getcwd(), 'new_calfw/working/validation_data_DeepFace60_0_fold_var'), # same directory as training data
+        target_size=(250, 250),
+        batch_size=60,
+        class_mode='binary',
+        subset='validation') # set as validation data
+    print(validation_generator)
 
     model = get_model(MODEL, CLASSES)
     sgd = optimizers.SGD(lr=1e-3, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(optimizer=sgd, loss='categorical_crossentropy', metrics=['acc'])
     model.load_weights("model_TFrecordDeepFace_1_60.h5")
+
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(save_dir + get_model_name(MODEL_NAME, 'fold_var', 'BATCH_SIZE'),monitor='val_acc', verbose=VERBOSE, save_best_only=True, mode='max')
+    earlystopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', verbose=VERBOSE, patience=200)
+    callbacks_list = [checkpoint, earlystopping]
+
+    history = model.fit(train_generator,
+                        epochs=5,
+                        steps_per_epoch=train_generator.n // train_generator.batch_size,
+                        callbacks=callbacks_list,
+                        validation_data=validation_generator,
+                        validation_steps=validation_generator.n // validation_generator.batch_size,
+                        verbose=1
+                        #GPU Test luisss
+                        #max_queue_size=BATCH_SIZE,                # maximum size for the generator queue
+                        #workers=12,                        # maximum number of processes to spin up when using process-based threading
+                        #use_multiprocessing=False
+                        )
         
-    results = model.evaluate(valid_data_generator)
-        # results = model.evaluate_generator(valid_data_generator)
-    predict = model.predict_generator(valid_data_generator)
+    results = model.evaluate(validation_generator)
+        # results = model.evaluate_generator(validation_generator)
+    predict = model.predict_generator(validation_generator)
     print('predict 1')
     print(predict)
     print(np.argmax(predict, axis=-1))
